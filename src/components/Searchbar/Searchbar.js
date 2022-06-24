@@ -1,45 +1,41 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import s from './Searchbar.module.css';
 import PropTypes from 'prop-types';
 
-export default class Searchbar extends Component {
-  state = {
-    search: '',
-  };
+export default function Searchbar({ onSubmitData }) {
+  const [search, setSearch] = useState('');
 
-  searchForm = e => {
+  const searchForm = e => {
     e.preventDefault();
-    if (this.state.search.trim() === '') {
+    if (search.trim() === '') {
       alert('Введите запрос');
       return;
     }
-    this.props.onSubmitData(this.state.search);
-    this.setState({ search: '' });
+    onSubmitData(search);
+    setSearch('');
   };
-  handleChangeInput = e => {
-    this.setState({ search: e.currentTarget.value });
+  const handleChangeInput = e => {
+    setSearch(e.currentTarget.value);
   };
-  render() {
-    return (
-      <header className={s.Searchbar}>
-        <form className={s.SearchForm} onSubmit={this.searchForm}>
-          <button type="submit" className={s.SearchForm__button}>
-            <span className="button-label">Search</span>
-          </button>
+  return (
+    <header className={s.Searchbar}>
+      <form className={s.SearchForm} onSubmit={searchForm}>
+        <button type="submit" className={s.SearchForm__button}>
+          <span className="button-label">Search</span>
+        </button>
 
-          <input
-            className={s.SearchForm__input}
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            onChange={this.handleChangeInput}
-            value={this.state.search}
-          />
-        </form>
-      </header>
-    );
-  }
+        <input
+          className={s.SearchForm__input}
+          type="text"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          onChange={handleChangeInput}
+          value={search}
+        />
+      </form>
+    </header>
+  );
 }
 
 Searchbar.propTypes = {

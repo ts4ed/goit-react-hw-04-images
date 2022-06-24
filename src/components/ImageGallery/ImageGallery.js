@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
 import Loader from '../Loader/Loader';
 import Modal from '../Modal/Modal';
@@ -13,104 +13,110 @@ const Status = {
   REJECTED: 'rejected',
 };
 
-export default class ImageGallery extends Component {
-  state = {
-    page: 1,
-    search: '',
-    images: null,
-    error: null,
-    status: 'idle',
-    showModal: false,
-    data: null,
-  };
-  componentDidUpdate(prevProps, prevState) {
-    const KEY = '27923124-abae4833d2be49fca3c02a38e';
-    const PAGE = this.state.page;
-    const PER_PAGE = '12';
-    const REQUEST = this.props.request;
-    if (prevProps.request !== this.props.request) {
+export default function ImageGallery({ request }) {
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState('idle');
+  const [search, setSearch] = useState('');
+  const [images, setImages] = useState(null);
+  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [data, setData] = useState(null);
+  const KEY = '27923124-abae4833d2be49fca3c02a38e';
+  const PAGE = page;
+  const PER_PAGE = '12';
+  const REQUEST = request;
+
+  useEffect(() => {
+    if (request) {
       if (REQUEST !== '') {
-        this.setState({ status: Status.PENDING, page: 1, images: null });
+        setStatus(Status.PENDING);
+        setPage(1);
+        setImages(null);
         pixabayAPI(REQUEST, PAGE, KEY, PER_PAGE)
-          .then(images => this.setState({ images, status: Status.RESOLVED }))
-          .catch(error => this.setState({ error, status: Status.REJECTED }));
+          .then(images => {
+            setImages(images);
+            setStatus(Status.RESOLVED);
+          })
+          .catch(error => {
+            setError(error);
+            setStatus(Status.REJECTED);
+          });
       }
     }
-    if (prevState.page + 1 === this.state.page) {
-      pixabayAPI(REQUEST, PAGE, KEY, PER_PAGE).then(images =>
-        this.setState({
-          images: [...prevState.images, ...images],
-        })
-      );
+  }, [request]);
+  useEffect(() => {
+    if (page === 1) {
+      return;
     }
-  }
+    pixabayAPI(REQUEST, PAGE, KEY, PER_PAGE).then(imageses =>
+      setImages([...images, ...imageses])
+    );
+  }, [page]);
 
-  toggleModal = e => {
-    this.setState(({ showModal }) => ({ showModal: !showModal }));
+  useEffect(() => {
+    if (page > 1) {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }, [page]);
+
+  const toggleModal = () => {
+    setShowModal(!showModal);
   };
 
-  hiddenModal = () => {
-    this.setState({ showModal: false });
+  const hiddenModal = () => {
+    setShowModal(false);
   };
 
-  showModalImage = id => {
-    const image = this.state.images.find(image => image.id === id);
-    this.setState({
-      data: {
-        largeImageURL: image.largeImageURL,
-        tags: image.tags,
-      },
+  const showModalImage = id => {
+    const image = images.find(image => image.id === id);
+    setData({
+      largeImageURL: image.largeImageURL,
+      tags: image.tags,
     });
-    this.toggleModal();
+    toggleModal();
   };
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const loadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  render() {
-    const { hiddenModal, loadMore } = this;
-    const imgs = this.state.images;
-    const { request } = this.props;
-    const { status, showModal, toggleModal, data } = this.state;
-
-    if (status === Status.PENDING) {
-      return <Loader />;
-    }
-    if (status === Status.REJECTED || (imgs && imgs.length === 0)) {
-      return (
-        <div className={s.Error}>
-          Что то пошло не так. Ваш запрос "{request}" не найден
-        </div>
-      );
-    }
-    if (status === Status.RESOLVED) {
-      return (
-        <div className={s.Button}>
-          {showModal && (
-            <Modal
-              onClick={toggleModal}
-              lgImage={data.largeImageURL}
-              tags={data.tags}
-              hiddenModal={hiddenModal}
+  if (status === Status.PENDING) {
+    return <Loader />;
+  }
+  if (status === Status.REJECTED || (images && images.length === 0)) {
+    return (
+      <div className={s.Error}>
+        Что то пошло не так. Ваш запрос "{request}" не найден
+      </div>
+    );
+  }
+  if (status === Status.RESOLVED) {
+    return (
+      <div className={s.Button}>
+        {showModal && (
+          <Modal
+            onClick={toggleModal}
+            lgImage={data.largeImageURL}
+            tags={data.tags}
+            hiddenModal={hiddenModal}
+          />
+        )}
+        <ul className={s.ImageGallery}>
+          {images.map(image => (
+            <ImageGalleryItem
+              key={image.id}
+              imageLink={image.webformatURL}
+              imageAlt={image.tags}
+              largeImageURL={image.largeImageURL}
+              onClick={() => showModalImage(image.id)}
             />
-          )}
-          <ul className={s.ImageGallery}>
-            {imgs.map(image => (
-              <ImageGalleryItem
-                key={image.id}
-                imageLink={image.webformatURL}
-                imageAlt={image.tags}
-                largeImageURL={image.largeImageURL}
-                onClick={() => this.showModalImage(image.id)}
-              />
-            ))}
-          </ul>
-          {imgs.length >= 12 && <Button loadMore={loadMore} />}
-        </div>
-      );
-    }
+          ))}
+        </ul>
+        {images.length >= 12 && <Button loadMore={loadMore} />}
+      </div>
+    );
   }
 }
