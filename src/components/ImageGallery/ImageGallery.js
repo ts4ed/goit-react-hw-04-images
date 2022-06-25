@@ -17,7 +17,6 @@ const Status = {
 export default function ImageGallery({ request }) {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('idle');
-  const [search, setSearch] = useState('');
   const [images, setImages] = useState(null);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
