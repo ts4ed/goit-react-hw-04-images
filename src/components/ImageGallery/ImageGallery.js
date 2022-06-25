@@ -25,6 +25,7 @@ export default function ImageGallery({ request }) {
   const PAGE = page;
   const PER_PAGE = '12';
   const REQUEST = request;
+  const lengthImg = 12;
 
   useEffect(() => {
     if (request) {
@@ -115,7 +116,7 @@ export default function ImageGallery({ request }) {
             />
           ))}
         </ul>
-        {images.length >= 12 && <Button loadMore={loadMore} />}
+        {images.length >= lengthImg && <Button loadMore={loadMore} />}
       </div>
     );
   }
