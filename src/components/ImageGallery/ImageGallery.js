@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
 import Loader from '../Loader/Loader';
 import Modal from '../Modal/Modal';
@@ -22,37 +22,40 @@ export default function ImageGallery({ request }) {
   const [showModal, setShowModal] = useState(false);
   const [data, setData] = useState(null);
   const KEY = '27923124-abae4833d2be49fca3c02a38e';
-  const PAGE = page;
+  const PAGE = 1;
   const PER_PAGE = '12';
-  const REQUEST = request;
+  // const REQUEST = request;
   const lengthImg = 12;
+  const firstFetch = useRef(null);
 
   useEffect(() => {
-    if (request) {
-      if (REQUEST !== '') {
-        setStatus(Status.PENDING);
-        setPage(1);
-        setImages(null);
-        pixabayAPI(REQUEST, PAGE, KEY, PER_PAGE)
-          .then(images => {
-            setImages(images);
-            setStatus(Status.RESOLVED);
-          })
-          .catch(error => {
-            setError(error);
-            setStatus(Status.REJECTED);
-          });
-      }
+    if (request && request !== '') {
+      setStatus(Status.PENDING);
+      setPage(1);
+      setImages(null);
+      firstFetch.current = false;
+      pixabayAPI(request, PAGE, KEY, PER_PAGE)
+        .then(images => {
+          setImages(images);
+          setStatus(Status.RESOLVED);
+          firstFetch.current = true;
+        })
+        .catch(error => {
+          setError(error);
+          setStatus(Status.REJECTED);
+        });
     }
   }, [request]);
   useEffect(() => {
     if (page === 1) {
       return;
     }
-    pixabayAPI(REQUEST, PAGE, KEY, PER_PAGE).then(imageses =>
-      setImages([...images, ...imageses])
-    );
-  }, [page]);
+    if (request && request !== '' && firstFetch.current) {
+      pixabayAPI(request, page, KEY, PER_PAGE).then(images =>
+        setImages(i => [...i, ...images])
+      );
+    }
+  }, [page, request]);
 
   useEffect(() => {
     if (page > 1) {
@@ -90,7 +93,7 @@ export default function ImageGallery({ request }) {
   if (status === Status.REJECTED || (images && images.length === 0)) {
     return (
       <div className={s.Error}>
-        Что то пошло не так. Ваш запрос "{request}" не найден
+        Что то пошло не так. Ваш запрос "{request}" не найден {error}
       </div>
     );
   }
