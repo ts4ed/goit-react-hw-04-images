@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import s from './Modal.module.css';
+import PropTypes from 'prop-types';
 
 const modalRoot = document.querySelector('#modal-root');
 
@@ -24,3 +25,9 @@ export default function Modal({ hiddenModal, lgImage, tags }) {
     modalRoot
   );
 }
+
+Modal.propTypes = {
+  hiddenModal: PropTypes.func.isRequired,
+  lgImage: PropTypes.string.isRequired,
+  tags: PropTypes.string.isRequired,
+};

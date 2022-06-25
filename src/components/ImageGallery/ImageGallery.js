@@ -5,6 +5,7 @@ import Modal from '../Modal/Modal';
 import Button from '../Button/Button';
 import pixabayAPI from '../../Services/pixabay-api';
 import s from './ImageGallery.module.css';
+import PropTypes from 'prop-types';
 
 const Status = {
   IDLE: 'idle',
@@ -120,3 +121,7 @@ export default function ImageGallery({ request }) {
     );
   }
 }
+
+ImageGallery.propTypes = {
+  request: PropTypes.string.isRequired,
+};
