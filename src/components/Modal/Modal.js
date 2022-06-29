@@ -5,17 +5,27 @@ import PropTypes from 'prop-types';
 
 const modalRoot = document.querySelector('#modal-root');
 
-export default function Modal({ hiddenModal, lgImage, tags }) {
+export default function Modal({ closeModal, lgImage, tags }) {
   useEffect(() => {
-    const handleKeyDown = el => el.code === 'Escape' && hiddenModal();
+    const handleKeyDown = el => el.code === 'Escape' && closeModal();
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [hiddenModal]);
+  }, [closeModal]);
 
-  const handleBackdropClick = el =>
-    el.currentTarget === el.target && hiddenModal();
+  // const handleKeyDown = el => {
+  //   if (el.code === 'Escape') {
+  //     closeModal();
+  //   }
+  // };
+
+  const handleBackdropClick = e => {
+    if (e.currentTarget === e.target) {
+      closeModal();
+    }
+  };
+
   return createPortal(
     <div className={s.Overlay} onClick={handleBackdropClick}>
       <div className={s.Modal}>

@@ -2,21 +2,36 @@ import { useState } from 'react';
 import s from './Searchbar.module.css';
 import PropTypes from 'prop-types';
 
-export default function Searchbar({ onSubmitData }) {
-  const [search, setSearch] = useState('');
+export default function Searchbar({ onSearch }) {
+  const [searchRequest, setSearchRequest] = useState('');
 
   const searchForm = e => {
     e.preventDefault();
-    if (search.trim() === '') {
+    if (searchRequest.trim() === '') {
       alert('Введите запрос');
       return;
     }
-    onSubmitData(search);
-    setSearch('');
+    onSearch(searchRequest);
+    setSearchRequest('');
   };
   const handleChangeInput = e => {
-    setSearch(e.currentTarget.value);
+    setSearchRequest(e.currentTarget.value);
   };
+
+  // searchForm = e => {
+  //   e.preventDefault();
+  //   if (this.state.searchRequest.trim() === '') {
+  //     alert('Введите запрос');
+  //     return;
+  //   }
+  //   this.props.onSearch(this.state.searchRequest);
+  //   this.setState({ searchRequest: '' });
+  //   console.log(this.state.searchRequest);
+  // };
+  // handleChangeInput = e => {
+  //   this.setState({ searchRequest: e.currentTarget.value });
+  // };
+
   return (
     <header className={s.Searchbar}>
       <form className={s.SearchForm} onSubmit={searchForm}>
@@ -31,7 +46,7 @@ export default function Searchbar({ onSubmitData }) {
           autoFocus
           placeholder="Search images and photos"
           onChange={handleChangeInput}
-          value={search}
+          value={searchRequest}
         />
       </form>
     </header>
