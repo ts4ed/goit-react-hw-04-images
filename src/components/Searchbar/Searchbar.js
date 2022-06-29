@@ -18,20 +18,6 @@ export default function Searchbar({ onSearch }) {
     setSearchRequest(e.currentTarget.value);
   };
 
-  // searchForm = e => {
-  //   e.preventDefault();
-  //   if (this.state.searchRequest.trim() === '') {
-  //     alert('Введите запрос');
-  //     return;
-  //   }
-  //   this.props.onSearch(this.state.searchRequest);
-  //   this.setState({ searchRequest: '' });
-  //   console.log(this.state.searchRequest);
-  // };
-  // handleChangeInput = e => {
-  //   this.setState({ searchRequest: e.currentTarget.value });
-  // };
-
   return (
     <header className={s.Searchbar}>
       <form className={s.SearchForm} onSubmit={searchForm}>

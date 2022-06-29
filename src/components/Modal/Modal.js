@@ -14,12 +14,6 @@ export default function Modal({ closeModal, lgImage, tags }) {
     };
   }, [closeModal]);
 
-  // const handleKeyDown = el => {
-  //   if (el.code === 'Escape') {
-  //     closeModal();
-  //   }
-  // };
-
   const handleBackdropClick = e => {
     if (e.currentTarget === e.target) {
       closeModal();
