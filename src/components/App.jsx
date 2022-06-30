@@ -6,6 +6,8 @@ import Button from './Button/Button';
 import pixabayAPI from '../Services/pixabay-api';
 import { useState, useEffect } from 'react';
 
+const PER_PAGE = 12;
+
 export default function App() {
   const [searchRequest, setSearchRequest] = useState('');
   const [images, setImages] = useState([]);
@@ -13,16 +15,18 @@ export default function App() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const updateImages = (searchRequest, galleryPage) => {
       setIsLoading(true);
       try {
-        pixabayAPI(searchRequest, galleryPage).then(data => {
-          if (!data.data.hits.length) {
+        pixabayAPI(searchRequest, galleryPage).then(({ data }) => {
+          const { hits, totalHits } = data;
+          if (!hits.length) {
             return alert('There is no images found with that search request');
           }
-          const mappedImages = data.data.hits.map(
+          const mappedImages = hits.map(
             ({ id, webformatURL, tags, largeImageURL }) => ({
               id,
               webformatURL,
@@ -31,6 +35,7 @@ export default function App() {
             })
           );
           setImages(i => [...i, ...mappedImages]);
+          setIsVisible(galleryPage < Math.ceil(totalHits / PER_PAGE));
         });
       } catch (error) {
         setError(error);
@@ -74,11 +79,10 @@ export default function App() {
       {error && alert(`Whoops, something went wrong: ${error.message}`)}
       {isLoading && <Loader color={'#3f51b5'} size={32} />}
       {images.length > 0 && (
-        <>
-          <ImageGallery images={images} handlePreview={openModalImage} />
-          <Button loadMore={loadMore} />
-        </>
+        <ImageGallery images={images} handlePreview={openModalImage} />
       )}
+      {isVisible && <Button loadMore={loadMore} />}
+
       {showModal && (
         <Modal
           lgImage={showModal.largeImageURL}
